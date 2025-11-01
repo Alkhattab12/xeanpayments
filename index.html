@@ -1,0 +1,614 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>All Payment • Xean Market</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* --- 1. Variabel Global & Reset --- */
+    :root {
+      --bg: #0f1724;
+      --card: #0b1220;
+      --accent: #7dd3fc; /* soft cyan */
+      --muted: #9aa6b2;
+      --glass: rgba(255, 255, 255, 0.04);
+      --border-color: rgba(255, 255, 255, 0.06);
+
+      /* Warna Brand untuk Ikon Pembayaran */
+      --dana-color: #118eea;
+      --gopay-color: #0081a0;
+      --spay-color: #ee4d2d;
+      --qris-color: #c70000;
+      --info-color: #6366f1;
+      
+      /* --- BARU: Variabel untuk efek glow --- */
+      --accent-glow: rgba(125, 211, 252, 0.25); 
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial;
+      background: linear-gradient(180deg, var(--bg) 0%, #071023 100%);
+      color: #e6eef6;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      
+      /* Cara modern untuk memusatkan konten */
+      display: grid;
+      place-items: center;
+      min-height: 100vh;
+      padding: 40px;
+    }
+
+    /* --- 2. Layout Utama --- */
+    .wrap {
+      width: 100%;
+      max-width: 980px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01));
+      border-radius: 14px;
+      padding: 28px;
+      box-shadow: 0 10px 30px rgba(2, 6, 23, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border-color);
+      backdrop-filter: blur(6px);
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 24px; /* Sedikit lebih banyak ruang */
+    }
+
+    .logo {
+      width: 56px;
+      height: 56px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      font-weight: 700;
+      font-size: 20px;
+      background: linear-gradient(135deg, #0ea5a4 0%, #60a5fa 100%);
+      color: #022;
+      box-shadow: 0 6px 18px rgba(99, 102, 241, 0.12);
+      flex-shrink: 0; /* Mencegah logo menyusut */
+    }
+
+    h1 {
+      font-size: 20px;
+    }
+
+    p.lead {
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 4px;
+    }
+    
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    footer {
+      margin-top: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    /* --- 3. Komponen Card --- */
+    .card {
+      background: var(--card);
+      border-radius: 12px;
+      padding: 18px;
+      position: relative;
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      /* --- DIUBAH: Menggunakan efek glow --- */
+      box-shadow: 0 0 20px 0px var(--accent-glow);
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+      overflow: hidden;
+    }
+
+    .card:hover {
+      transform: translateY(-6px);
+      /* --- DIUBAH: Efek glow saat hover --- */
+      box-shadow: 0 6px 30px 2px var(--accent-glow);
+    }
+
+    /* Glow effect di dalam card */
+    .card::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 12px;
+      pointer-events: none;
+      box-shadow: 0 0 32px 1px rgba(255, 255, 255, 0.03) inset;
+      border: 1px solid var(--border-color);
+    }
+    
+    /* PERUBAHAN: Menggunakan flex-column + gap untuk spasi otomatis */
+    .card-content {
+      display: flex;
+      flex-direction: column;
+      gap: 14px; /* Menggantikan semua margin-top */
+    }
+
+    .pay-name {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .pay-icon {
+      width: 46px;
+      height: 46px;
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      font-weight: 600;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    /* PERUBAHAN: Warna brand */
+    .pay-icon[data-brand="dana"] { background-color: var(--dana-color); }
+    .pay-icon[data-brand="gopay"] { background-color: var(--gopay-color); }
+    .pay-icon[data-brand="spay"] { background-color: var(--spay-color); }
+    .pay-icon[data-brand="qris"] { background-color: var(--qris-color); }
+    .pay-icon[data-brand="info"] { background-color: var(--info-color); }
+
+    /* PERUBAHAN: HTML Semantik */
+    h3.pay-title {
+      font-size: 15px;
+      font-weight: 600;
+      margin: 0;
+    }
+
+    p.pay-sub {
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 4px;
+      margin: 4px 0 0 0;
+    }
+
+    .number-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    /* PERUBAHAN: HTML Semantik */
+    code.number {
+      font-family: monospace;
+      font-weight: 600;
+      background: linear-gradient(90deg, rgba(255, 255, 255, 0.02), transparent);
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.03);
+      flex-grow: 1; /* Nomor mengambil sisa ruang */
+      overflow-x: auto; /* Jaga-jaga jika nomor terlalu panjang */
+    }
+
+    small.meta {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    /* --- 4. Komponen Tombol (Buttons) --- */
+    .actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap; /* Tombol akan pindah baris di layar kecil */
+    }
+
+    /* Base button style */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px; /* Ruang antara ikon dan teks */
+      padding: 10px 14px;
+      border-radius: 10px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 14px;
+      border: 1px solid transparent;
+      transition: all 0.18s ease;
+    }
+    
+    .btn svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(90deg, #06b6d4, #7c3aed);
+      color: white;
+      border-color: rgba(255, 255, 255, 0.06);
+    }
+    .btn-primary:hover {
+      box-shadow: 0 4px 12px rgba(6, 182, 212, 0.15);
+      transform: translateY(-2px);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      border-color: rgba(255, 255, 255, 0.08);
+      color: var(--muted);
+    }
+    .btn-ghost:hover {
+      background: var(--glass);
+      color: #fff;
+      border-color: rgba(255, 255, 255, 0.15);
+      transform: translateY(-2px);
+    }
+
+    /* Tombol Salin (Copy) */
+    .copy {
+      border: 1px solid rgba(125, 211, 252, 0.12);
+      background: transparent;
+      color: var(--accent);
+      cursor: pointer;
+      font-weight: 600;
+      padding: 8px 10px;
+      border-radius: 8px;
+      backdrop-filter: blur(4px);
+      transition: all 0.18s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .copy:hover {
+      transform: translateY(-2px);
+      background: rgba(125, 211, 252, 0.1);
+    }
+    
+    /* PERUBAHAN: Styling untuk ikon di dalam tombol copy */
+    .copy svg {
+      width: 14px;
+      height: 14px;
+      stroke-width: 2.5;
+    }
+
+    .copy .icon-check {
+      display: none; /* Sembunyikan ikon cek by default */
+    }
+    .copy.copied {
+      background: #16a34a; /* Hijau sukses */
+      color: white;
+      border-color: rgba(255, 255, 255, 0.1);
+    }
+    .copy.copied .icon-copy {
+      display: none; /* Sembunyikan ikon copy saat sukses */
+    }
+    .copy.copied .icon-check {
+      display: inline-block; /* Tampilkan ikon cek saat sukses */
+    }
+
+
+    /* --- 5. Toast Notification --- */
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 26px;
+      background: rgba(6, 8, 20, 0.9);
+      color: #e6eef6;
+      padding: 10px 16px;
+      border-radius: 999px;
+      font-weight: 600;
+      font-size: 14px;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 8px 30px rgba(2, 6, 23, 0.6);
+      backdrop-filter: blur(8px);
+      
+      /* PERUBAHAN: Animasi fade-in/out */
+      opacity: 0;
+      transform: translate(-50%, 10px);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      pointer-events: none; /* Agar tidak bisa diklik */
+      z-index: 1000;
+    }
+    
+    .toast.show {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+
+
+    /* --- 6. Responsive --- */
+    @media (max-width: 880px) {
+      .grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 560px) {
+      body {
+        padding: 20px;
+      }
+      .grid {
+        grid-template-columns: 1fr;
+      }
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+  
+  <div class="wrap">
+    
+    <header>
+        <h1>Xean Market — All Payment</h1>
+        <p class="lead">Metode pembayaran resmi. Klik tombol salin untuk menyalin nomor.</p>
+      </div>
+    </header>
+
+    <section class="grid">
+
+      <article class="card" data-payment-card>
+        <div class="card-content">
+          <div class="pay-name">
+            <div>
+              <h3 class="pay-title">DANA</h3>
+              <p class="pay-sub">Akun: Frostice</p>
+            </div>
+          </div>
+          <div class="number-row">
+            <code class="number" id="dana">081212112379</code>
+            <button class="copy" data-target="dana" title="Salin nomor">
+              <svg class="icon-copy" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 01-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 011.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 00-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375v-3.375c0-.621-.504-1.125-1.125-1.125h-9.75a1.125 1.125 0 01-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 011.5.124M12.75 5.106a9.06 9.06 0 011.5.124" /></svg>
+              <svg class="icon-check" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
+              Salin
+            </button>
+          </div>
+        </div>
+      </article>
+
+      <article class="card" data-payment-card>
+        <div class="card-content">
+          <div class="pay-name">
+            <div>
+              <h3 class="pay-title">GoPay</h3>
+              <p class="pay-sub">Akun: Farel</p>
+            </div>
+          </div>
+          <div class="number-row">
+            <code class="number" id="gopay">0895321622419</code>
+            <button class="copy" data-target="gopay" title="Salin nomor">
+              <svg class="icon-copy" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 01-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 011.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 00-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375v-3.375c0-.621-.504-1.125-1.125-1.125h-9.75a1.125 1.125 0 01-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 011.5.124M12.75 5.106a9.06 9.06 0 011.5.124" /></svg>
+              <svg class="icon-check" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
+              Salin
+            </button>
+          </div>
+        </div>
+      </article>
+
+      <article class="card" data-payment-card>
+        <div class="card-content">
+          <div class="pay-name">
+            <div>
+              <h3 class="pay-title">SPay</h3>
+              <p class="pay-sub">Akun: Frostice</p>
+            </div>
+          </div>
+          <div class="number-row">
+            <code class="number" id="spay">081212112379</code>
+            <button class="copy" data-target="spay" title="Salin nomor">
+              <svg class="icon-copy" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 01-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 011.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 00-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375v-3.375c0-.621-.504-1.125-1.125-1.125h-9.75a1.125 1.125 0 01-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 011.5.124M12.75 5.106a9.06 9.06 0 011.5.124" /></svg>
+              <svg class="icon-check" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
+              Salin
+            </button>
+          </div>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-content">
+          <div class="pay-name">
+            <div>
+              <h3 class="pay-title">QRIS</h3>
+              <p class="pay-sub">Scan atau lihat QRIS</p>
+            </div>
+          </div>
+          <a class="btn btn-ghost" href="https://files.catbox.moe/29stz0.png" target="_blank" rel="noopener">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 <0h-5></0h-5>.25M21 3v5.25" /></svg>
+            LIHAT QRIS
+          </a>
+          <small class="meta">Link menuju gambar QRIS (opens in new tab)</small>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-content">
+          <div class="pay-name"
+            <div>
+              <h3 class="pay-title">Catatan</h3>
+            </div>
+          </div>
+          <small class="meta">Pastikan nominal & nama sesuai sebelum transfer.
+          Jika ada kendala, hubungi admin.</small>
+        </div>
+      </article>
+
+    </section>
+
+    <footer>
+      <div class="actions">
+        <a class="btn btn-primary" href="https://chat.whatsapp.com/KmrX8YZHnNtKvoyRSHf3G2?mode=wwt" target="_blank" rel="noopener">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.451-4.437-9.887-9.889-9.888-5.451 0-9.887 4.434-9.889 9.888-.001 2.225.651 4.315 1.847 6.039l-1.25 4.562 4.66-1.225z"/></svg>
+          Gabung Grup Xean Market
+        </a>
+        </a>
+      </div>
+      <div style="color:var(--muted);font-size:13px">Updated • Xean Market</div>
+    </footer>
+
+  </div>
+  
+  <div class="toast" id="toast">Tersalin ke clipboard</div>
+  
+  <script>
+    // Menyimpan timer di scope global agar bisa di-clear
+    let toastTimer;
+
+    /**
+     * PERUBAHAN: Fungsi Toast menggunakan class 'show' untuk animasi CSS.
+     * @param {string} text - Teks yang akan ditampilkan.
+     */
+    function showToast(text) {
+      const t = document.getElementById('toast');
+      t.textContent = text || 'Tersalin ke clipboard';
+      
+      // Menerapkan class untuk memicu animasi
+      t.classList.add('show');
+
+      // Hapus timer sebelumnya jika ada
+      clearTimeout(toastTimer);
+
+      // Atur timer baru untuk menyembunyikan toast
+      toastTimer = setTimeout(() => {
+        t.classList.remove('show');
+      }, 2000); // Tampilkan selama 2 detik
+    }
+
+    /**
+     * Fungsi Salin ke Clipboard
+     * @param {string} text - Teks yang akan disalin.
+     * @param {HTMLElement} btn - Tombol yang diklik (opsional).
+     */
+    async function copyToClipboard(text, btn = null) {
+      try {
+        await navigator.clipboard.writeText(text);
+        
+        // Visual feedback pada tombol
+        if (btn) {
+          const originalText = btn.querySelector('span') ? btn.querySelector('span').textContent : 'Salin'; // Simpan teks asli
+          btn.classList.add('copied');
+          
+          // Ubah teks tombol menjadi 'Tersalin'
+          const textNode = Array.from(btn.childNodes).find(node => node.nodeType === Node.TEXT_NODE);
+          if (textNode) textNode.nodeValue = ' Tersalin';
+
+          setTimeout(() => {
+            btn.classList.remove('copied');
+            // Kembalikan teks tombol
+            if (textNode) textNode.nodeValue = ` ${originalText}`;
+          }, 1500); // Kembalikan setelah 1.5 detik
+        }
+        return true; // Sukses
+      } catch (e) {
+        console.error('Gagal menyalin:', e);
+        // Fallback untuk browser lama (http atau webview)
+        try {
+          const ta = document.createElement('textarea');
+          ta.value = text;
+          ta.style.position = 'fixed'; // Posisikan di luar layar
+          ta.style.opacity = '0';
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand('copy');
+          ta.remove();
+          
+          // Ulangi visual feedback untuk fallback
+          if (btn) {
+            const originalText = btn.querySelector('span') ? btn.querySelector('span').textContent : 'Salin';
+            btn.classList.add('copied');
+            const textNode = Array.from(btn.childNodes).find(node => node.nodeType === Node.TEXT_NODE);
+            if (textNode) textNode.nodeValue = ' Tersalin';
+
+            setTimeout(() => {
+              btn.classList.remove('copied');
+              if (textNode) textNode.nodeValue = ` ${originalText}`;
+            }, 1500);
+          }
+          return true; // Sukses (fallback)
+        } catch (err) {
+          console.error('Fallback salin gagal:', err);
+          return false; // Gagal total
+        }
+      }
+    }
+
+    // Event listener untuk semua tombol .copy
+    document.querySelectorAll('button.copy').forEach(btn => {
+      // Menyimpan teks asli tombol
+      const textNode = Array.from(btn.childNodes).find(node => node.nodeType === Node.TEXT_NODE);
+      if (textNode) {
+        btn.dataset.originalText = textNode.nodeValue.trim();
+        
+        // Membungkus teks dalam <span> agar lebih mudah di-target
+        const span = document.createElement('span');
+        span.textContent = textNode.nodeValue;
+        btn.replaceChild(span, textNode);
+      }
+      
+      btn.addEventListener('click', async () => {
+        const id = btn.getAttribute('data-target');
+        const el = document.getElementById(id);
+        if (!el) return;
+
+        const text = el.textContent.trim();
+        const success = await copyToClipboard(text, btn);
+        
+        if (success) {
+          showToast(text + ' • Disalin');
+        } else {
+          alert('Salin gagal. Silakan salin manual: ' + text);
+        }
+      });
+    });
+
+    // PERUBAHAN: "Salin Semua" sekarang dinamis, membaca dari DOM
+    document.getElementById('copy-all').addEventListener('click', async function(e) {
+      e.preventDefault();
+      
+      const items = [];
+      // Cari semua card yang punya atribut 'data-payment-card'
+      const paymentCards = document.querySelectorAll('[data-payment-card]');
+      
+      paymentCards.forEach(card => {
+        try {
+          const title = card.querySelector('.pay-title').textContent.trim();
+          const number = card.querySelector('.number').textContent.trim();
+          const name = card.querySelector('.meta').textContent.replace('a/n:', '').trim();
+          
+          items.push(`${title}: ${number} (${name})`);
+        } catch (err) {
+          console.warn('Gagal mem-parsing card:', card, err);
+        }
+      });
+
+      if (items.length === 0) {
+        alert('Tidak ada nomor yang bisa disalin.');
+        return;
+      }
+
+      const text = items.join('\n');
+      const success = await copyToClipboard(text); // Tidak perlu feedback tombol di sini
+      
+      if (success) {
+        showToast('Semua nomor berhasil disalin');
+      } else {
+        alert('Gagal menyalin semua nomor.');
+      }
+    });
+  </script>
+</body>
+</html>
+
