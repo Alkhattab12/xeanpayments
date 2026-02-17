@@ -1,0 +1,636 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0" />
+  <title>Xean Market • All Payments</title>
+
+  <!-- ── Open Graph (WhatsApp / Telegram link preview) ── -->
+  <meta property="og:type"        content="website" />
+  <meta property="og:title"       content="All Payment • Xean Market" />
+  <meta property="og:description" content="Bayar via QRIS, DANA, GoPay, ShopeePay — cepat & aman." />
+  <meta property="og:url"         content="https://xeanpayments.vercel.app" />
+
+  <!-- Ganti URL di bawah dengan link gambar kamu dari Catbox / ImgBB / dll -->
+  <meta property="og:image"       content="https://files.catbox.moe/sik0pp.png" />
+  <meta property="og:image:width"  content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt"   content="Xean Market Payment" />
+
+  <!-- WhatsApp kadang baca tag ini juga -->
+  <meta name="twitter:card"        content="summary_large_image" />
+  <meta name="twitter:title"       content="All Payment • Xean Market" />
+  <meta name="twitter:description" content="Bayar via QRIS, DANA, GoPay, ShopeePay — cepat & aman." />
+  <meta name="twitter:image"       content="https://files.catbox.moe/sik0pp.png" />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    :root {
+      --bg: #020617;
+      --card-bg: rgba(15, 23, 42, 0.7);
+      --accent: #0ea5e9;
+      --accent-glow: rgba(14, 165, 233, 0.25);
+      --text-main: #f1f5f9;
+      --text-dim: #94a3b8;
+      --glass: rgba(255, 255, 255, 0.06);
+      --glass-border: rgba(255, 255, 255, 0.08);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box; margin: 0; padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text-main);
+      overflow-x: hidden;
+      min-height: 100vh;
+    }
+
+    /* ── Background (pakai opacity saja, bukan scale — lebih hemat GPU) ── */
+    .bg-visual {
+      position: fixed; inset: 0;
+      background:
+        radial-gradient(ellipse 80% 50% at 50% -10%, #0c4a6e 0%, transparent 60%),
+        radial-gradient(ellipse 40% 30% at 80% 80%, #0c2a4e 0%, transparent 60%);
+      z-index: -1;
+      animation: pulseBg 8s ease-in-out infinite alternate;
+      will-change: opacity;
+    }
+    @keyframes pulseBg {
+      from { opacity: 0.45; }
+      to   { opacity: 0.7; }
+    }
+
+    .container {
+      width: 100%; max-width: 600px; margin: 0 auto;
+      padding: 40px 20px 60px; position: relative; z-index: 10;
+    }
+
+    /* ── Navigation Toggle ── */
+    .menu-toggle {
+      position: fixed; top: 20px; right: 20px; width: 52px; height: 52px;
+      background: var(--accent); border-radius: 16px;
+      display: flex; flex-direction: column;
+      justify-content: center; align-items: center; gap: 5px;
+      cursor: pointer; z-index: 1001;
+      box-shadow: 0 8px 24px var(--accent-glow);
+      transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.25s;
+      border: none; background-color: var(--accent);
+    }
+    .menu-toggle:hover  { box-shadow: 0 12px 32px rgba(14,165,233,0.55); }
+    .menu-toggle:active { transform: scale(0.82); }
+    .menu-toggle span   { width: 26px; height: 3px; background: #000; border-radius: 2px; transition: 0.3s; display: block; }
+    /* Animasi burger → X saat aktif */
+    .menu-toggle.active span:nth-child(1) { transform: translateY(8px) rotate(45deg); }
+    .menu-toggle.active span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+    .menu-toggle.active span:nth-child(3) { transform: translateY(-8px) rotate(-45deg); }
+
+    /* ── Nav Overlay ── */
+    .nav-overlay {
+      position: fixed; top: 0; right: -100%; width: 100%; max-width: 300px; height: 100%;
+      background: rgba(10, 16, 35, 0.97); backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      z-index: 1000; padding: 90px 24px 30px;
+      transition: right 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+      border-left: 1px solid var(--glass-border);
+    }
+    .nav-overlay.active { right: 0; }
+
+    .nav-menu { list-style: none; }
+    .nav-menu li {
+      padding: 16px 18px; margin-bottom: 8px; border-radius: 14px;
+      background: rgba(255,255,255,0.03);
+      display: flex; align-items: center; gap: 14px;
+      font-weight: 700; cursor: pointer; font-size: 0.95rem;
+      transition: background 0.25s, color 0.25s, transform 0.25s;
+      transform: translateX(24px); opacity: 0;
+    }
+    .nav-overlay.active .nav-menu li {
+      transform: translateX(0); opacity: 1;
+      transition-delay: calc(0.07s * var(--i));
+    }
+    .nav-menu li:hover  { background: var(--accent); color: #000; }
+    .nav-menu li:active { transform: scale(0.96); }
+    .nav-menu li i      { width: 20px; text-align: center; }
+
+    /* ── Modal System ── */
+    .modal {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.8); backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      z-index: 2000; display: flex; align-items: center; justify-content: center;
+      padding: 20px; opacity: 0; visibility: hidden;
+      transition: opacity 0.3s, visibility 0.3s;
+    }
+    .modal.active { opacity: 1; visibility: visible; }
+    .modal-content {
+      background: #111827; border: 1px solid var(--glass-border);
+      width: 100%; max-width: 440px; border-radius: 28px; padding: 32px;
+      position: relative; max-height: 85vh; overflow-y: auto;
+      transform: translateY(20px) scale(0.97);
+      transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .modal.active .modal-content { transform: translateY(0) scale(1); }
+    .close-modal {
+      position: absolute; top: 18px; right: 18px; width: 32px; height: 32px;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 50%; background: rgba(255,255,255,0.08);
+      font-size: 18px; color: var(--text-dim); cursor: pointer;
+      transition: background 0.2s, color 0.2s; border: none;
+    }
+    .close-modal:hover { background: rgba(255,255,255,0.15); color: var(--text-main); }
+
+    /* ── Header ── */
+    header {
+      text-align: center; margin-bottom: 40px;
+      animation: fadeInDown 0.7s ease both;
+    }
+    header h1 {
+      font-size: clamp(1.8rem, 6vw, 2.4rem);
+      font-weight: 800; letter-spacing: 2px;
+      background: linear-gradient(135deg, #fff 30%, var(--accent));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    header p { color: var(--text-dim); margin-top: 6px; font-size: 0.9rem; }
+
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Payment Cards ── */
+    .pay-card {
+      background: var(--card-bg); border-radius: 22px; padding: 22px;
+      margin-bottom: 16px; border: 1px solid var(--glass-border);
+      cursor: pointer; user-select: none;
+      transition: border-color 0.3s, background 0.3s, transform 0.3s, box-shadow 0.3s;
+      animation: fadeInUp 0.5s ease both;
+    }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(28px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .pay-card:hover {
+      border-color: var(--accent); background: rgba(14,165,233,0.06);
+      transform: translateY(-4px); box-shadow: 0 12px 36px var(--accent-glow);
+    }
+    .pay-card:active { transform: scale(0.96) translateY(0); }
+
+    .card-info { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; }
+    .logo-png  { width: 44px; height: 44px; object-fit: contain; border-radius: 10px; }
+    .card-info-text .label { font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; }
+    .card-info-text .name  { font-weight: 800; font-size: 1rem; margin-top: 2px; }
+
+    .copy-area {
+      background: rgba(0,0,0,0.35); border-radius: 13px; padding: 14px 18px;
+      display: flex; justify-content: space-between; align-items: center;
+      border: 1px solid rgba(255,255,255,0.04);
+      transition: border-color 0.3s, background 0.3s;
+    }
+    .pay-card:hover .copy-area {
+      border-color: rgba(14,165,233,0.3);
+      background: rgba(0,0,0,0.5);
+    }
+    .num-text {
+      font-family: 'Courier New', monospace; font-size: clamp(1rem, 3.5vw, 1.15rem);
+      font-weight: 700; color: var(--accent);
+      text-shadow: 0 0 12px rgba(14,165,233,0.25);
+      word-break: break-all;
+    }
+    .copy-icon { color: var(--text-dim); font-size: 1rem; flex-shrink: 0; }
+
+    /* ── Status Badge pada Card ── */
+    .card-header { display: flex; justify-content: space-between; align-items: flex-start; }
+    .pay-badge {
+      font-size: 0.68rem; font-weight: 800; padding: 4px 10px;
+      border-radius: 50px; letter-spacing: 0.6px; text-transform: uppercase;
+      flex-shrink: 0; margin-left: 8px; margin-top: 2px;
+      display: flex; align-items: center; gap: 5px;
+    }
+    .pay-badge::before {
+      content: ''; width: 6px; height: 6px; border-radius: 50%;
+      display: inline-block; flex-shrink: 0;
+    }
+    .badge-online  {
+      background: rgba(34,197,94,0.15); color: #4ade80;
+      border: 1px solid rgba(34,197,94,0.25);
+    }
+    .badge-online::before  { background: #4ade80; box-shadow: 0 0 6px #4ade80; animation: pulse-dot 2s infinite; }
+    .badge-offline {
+      background: rgba(239,68,68,0.15); color: #f87171;
+      border: 1px solid rgba(239,68,68,0.25);
+    }
+    .badge-offline::before { background: #f87171; }
+    .badge-lag     {
+      background: rgba(234,179,8,0.15); color: #facc15;
+      border: 1px solid rgba(234,179,8,0.25);
+    }
+    .badge-lag::before     { background: #facc15; box-shadow: 0 0 6px #facc15; animation: pulse-dot 1s infinite; }
+
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.3; }
+    }
+
+    /* ── Toast ── */
+    #toast {
+      position: fixed; bottom: 28px; left: 50%;
+      transform: translateX(-50%) translateY(120px);
+      background: #fff; color: #000; padding: 11px 28px;
+      border-radius: 50px; font-weight: 800; font-size: 0.9rem;
+      transition: transform 0.45s cubic-bezier(0.68, -0.55, 0.265, 1.55), opacity 0.3s;
+      z-index: 9999; box-shadow: 0 8px 28px rgba(0,0,0,0.45);
+      pointer-events: none; opacity: 0;
+    }
+    #toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+    /* ── QRIS ── */
+    .qris-display {
+      width: 100%; border-radius: 18px; margin-top: 14px;
+      border: 4px solid #fff; display: block;
+    }
+
+    /* ── Testimoni ── */
+    .testi-item {
+      background: rgba(255,255,255,0.04); border-radius: 14px;
+      padding: 14px 16px; margin-bottom: 10px; font-size: 0.9rem;
+    }
+    .testi-item .testi-name { font-weight: 700; color: var(--accent); margin-bottom: 4px; }
+    .testi-item .testi-text { color: var(--text-dim); line-height: 1.5; }
+
+    /* ── Server Status ── */
+    .status-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 0; border-bottom: 1px solid var(--glass-border);
+    }
+    .status-row:last-child { border-bottom: none; }
+    .status-badge {
+      font-size: 0.75rem; font-weight: 700; padding: 4px 12px;
+      border-radius: 50px; letter-spacing: 0.5px;
+    }
+    .status-online  { background: rgba(34,197,94,0.2); color: #4ade80; }
+    .status-offline { background: rgba(239,68,68,0.2);  color: #f87171; }
+    .status-lag     { background: rgba(234,179,8,0.2);  color: #facc15; }
+
+    /* ── Store Katalog ── */
+    .store-item {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 14px 0; border-bottom: 1px solid var(--glass-border);
+    }
+    .store-item:last-child { border-bottom: none; }
+    .store-item .s-name  { font-weight: 700; }
+    .store-item .s-price { color: var(--accent); font-weight: 800; }
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--glass-border); border-radius: 4px; }
+  </style>
+</head>
+<body>
+
+  <div class="bg-visual" aria-hidden="true"></div>
+
+  <button class="menu-toggle" id="menuToggle" onclick="toggleNav()" aria-label="Toggle navigation" aria-expanded="false">
+    <span></span><span></span><span></span>
+  </button>
+
+  <nav class="nav-overlay" id="navSidebar" aria-label="Main navigation">
+    <ul class="nav-menu" role="list">
+      <li style="--i:1" onclick="openModal('m-owner')" tabindex="0" role="button"><i class="fas fa-user-circle" aria-hidden="true"></i> Info Owner</li>
+      <li style="--i:2" onclick="openModal('m-store')" tabindex="0" role="button"><i class="fas fa-store"       aria-hidden="true"></i> Katalog Store</li>
+      <li style="--i:3" onclick="openModal('m-testi')" tabindex="0" role="button"><i class="fas fa-thumbs-up"  aria-hidden="true"></i> Testimoni</li>
+      <li style="--i:4" onclick="openModal('m-status')" tabindex="0" role="button"><i class="fas fa-signal"   aria-hidden="true"></i> Server Status</li>
+      <li style="--i:5" onclick="window.open('https://wa.me/6281212112379','_blank')" tabindex="0" role="button"><i class="fab fa-whatsapp" aria-hidden="true"></i> Chat Admin</li>
+    </ul>
+  </nav>
+
+  <div class="container">
+    <header>
+      <h1>XEAN PAYMENTS</h1>
+      <p>Fast Digital Payments</p>
+    </header>
+
+    <!-- QRIS — status otomatis cek waktu -->
+    <div class="pay-card" style="animation-delay:0.1s" onclick="openModal('m-qris')" role="button" tabindex="0" aria-label="Buka QRIS">
+      <div class="card-info" style="justify-content:space-between;align-items:center">
+        <div style="display:flex;align-items:center;gap:14px;flex:1;min-width:0">
+          <img src="qris.png" onerror="this.src='https://i.ibb.co/9TRm8S9/qris-logo.png'" class="logo-png" alt="QRIS">
+          <div class="card-info-text">
+            <div class="label">QRIS</div>
+            <div class="name">All Payment (Otomatis)</div>
+          </div>
+        </div>
+        <span class="pay-badge" id="badge-qris">—</span>
+      </div>
+      <div class="copy-area" style="justify-content: center; gap: 10px;">
+        <span style="font-weight: 800; color: var(--accent);">KLIK UNTUK SCAN</span>
+        <i class="fas fa-qrcode copy-icon" aria-hidden="true"></i>
+      </div>
+    </div>
+
+    <!-- DANA — status manual -->
+    <div class="pay-card" style="animation-delay:0.2s" onclick="copyNum('081212112379','DANA')" role="button" tabindex="0" aria-label="Salin nomor DANA">
+      <div class="card-info" style="justify-content:space-between;align-items:center">
+        <div style="display:flex;align-items:center;gap:14px;flex:1;min-width:0">
+          <img src="dana.png" onerror="this.src='https://i.ibb.co/S7m0v7m/dana-logo-png.png'" class="logo-png" alt="DANA">
+          <div class="card-info-text">
+            <div class="label">DANA</div>
+            <div class="name">a/n Frostice</div>
+          </div>
+        </div>
+        <span class="pay-badge" id="badge-dana">—</span>
+      </div>
+      <div class="copy-area">
+        <span class="num-text">081212112379</span>
+        <i class="far fa-copy copy-icon" aria-hidden="true"></i>
+      </div>
+    </div>
+
+    <!-- GoPay — status manual -->
+    <div class="pay-card" style="animation-delay:0.3s" onclick="copyNum('0895321622419','GoPay')" role="button" tabindex="0" aria-label="Salin nomor GoPay">
+      <div class="card-info" style="justify-content:space-between;align-items:center">
+        <div style="display:flex;align-items:center;gap:14px;flex:1;min-width:0">
+          <img src="gopay.png" onerror="this.src='https://i.ibb.co/9v6Yf8V/gopay-logo.png'" class="logo-png" alt="GoPay">
+          <div class="card-info-text">
+            <div class="label">GoPay</div>
+            <div class="name">a/n Farel</div>
+          </div>
+        </div>
+        <span class="pay-badge" id="badge-gopay">—</span>
+      </div>
+      <div class="copy-area">
+        <span class="num-text">0895321622419</span>
+        <i class="far fa-copy copy-icon" aria-hidden="true"></i>
+      </div>
+    </div>
+
+    <!-- ShopeePay — status manual -->
+    <div class="pay-card" style="animation-delay:0.4s" onclick="copyNum('081212112379','ShopeePay')" role="button" tabindex="0" aria-label="Salin nomor ShopeePay">
+      <div class="card-info" style="justify-content:space-between;align-items:center">
+        <div style="display:flex;align-items:center;gap:14px;flex:1;min-width:0">
+          <img src="shopeepay.png" onerror="this.src='https://i.ibb.co/3pY84X6/shopeepay-logo.png'" class="logo-png" alt="ShopeePay">
+          <div class="card-info-text">
+            <div class="label">ShopeePay</div>
+            <div class="name">a/n Frostice</div>
+          </div>
+        </div>
+        <span class="pay-badge" id="badge-shopeepay">—</span>
+      </div>
+      <div class="copy-area">
+        <span class="num-text">081212112379</span>
+        <i class="far fa-copy copy-icon" aria-hidden="true"></i>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ MODALS ═══ -->
+
+  <!-- QRIS Modal -->
+  <div class="modal" id="m-qris" role="dialog" aria-modal="true" aria-label="Scan QRIS">
+    <div class="modal-content" style="text-align:center">
+      <button class="close-modal" onclick="closeModals()" aria-label="Tutup"><i class="fas fa-times" aria-hidden="true"></i></button>
+      <h2 style="margin-bottom:8px">Scan QRIS</h2>
+      <p style="font-size:0.8rem; color:var(--text-dim)">Scan dengan aplikasi bank atau e-wallet kamu</p>
+      <img src="qr-upperpay.png" onerror="this.src='https://files.catbox.moe/qdo9t1.jpg'" class="qris-display" alt="QR Code">
+      <p style="margin-top:14px; font-size:0.78rem; color:var(--text-dim)">Screenshot lalu scan di aplikasi pilihan kamu.</p>
+    </div>
+  </div>
+
+  <!-- Owner Modal -->
+  <div class="modal" id="m-owner" role="dialog" aria-modal="true" aria-label="Info Owner">
+    <div class="modal-content">
+      <button class="close-modal" onclick="closeModals()" aria-label="Tutup"><i class="fas fa-times" aria-hidden="true"></i></button>
+      <h2 style="color:var(--accent); margin-bottom:14px">Developer Info</h2>
+      <p style="color:var(--text-dim); line-height:1.6">
+         <strong style="color:var(--text-main)">Syamil Alkhattab</strong> adalah seorang Full-Stack Developer dan System Architect yang berfokus pada pengembangan platform marketplace digital dan sistem pembayaran berbasis web yang aman, scalable, serta terintegrasi. Ia merupakan pendiri sekaligus pengembang utama Xean Market, sebuah platform perdagangan digital yang dilengkapi dengan sistem web payment mandiri.
+Dengan pendekatan berbasis arsitektur modular dan prinsip secure-by-design, Syamil membangun ekosistem Xean Market dari tahap perencanaan sistem, perancangan database, pengembangan backend, hingga implementasi payment gateway dan sistem keamanan transaksi.
+        Untuk pertanyaan atau kerjasama, silakan hubungi melalui WhatsApp.
+      </p>
+      <button onclick="window.open('https://wa.me/6281212112379','_blank')"
+        style="margin-top:20px; width:100%; padding:14px; background:var(--accent); color:#000; font-weight:800; border-radius:14px; border:none; cursor:pointer; font-size:0.95rem;">
+        <i class="fab fa-whatsapp" style="margin-right:8px"></i>Chat WhatsApp
+      </button>
+    </div>
+  </div>
+
+  <!-- Store Katalog Modal -->
+  <div class="modal" id="m-store" role="dialog" aria-modal="true" aria-label="Katalog Store">
+    <div class="modal-content">
+      <button class="close-modal" onclick="closeModals()" aria-label="Tutup"><i class="fas fa-times" aria-hidden="true"></i></button>
+      <h2 style="margin-bottom:20px">Katalog Store</h2>
+      <div id="store-list">
+        <!-- Isi dari JS -->
+      </div>
+      <p style="margin-top:16px; font-size:0.8rem; color:var(--text-dim); text-align:center">
+        Harga dapat berubah sewaktu-waktu. Hubungi admin untuk konfirmasi.
+      </p>
+    </div>
+  </div>
+
+  <!-- Testimoni Modal -->
+  <div class="modal" id="m-testi" role="dialog" aria-modal="true" aria-label="Testimoni">
+    <div class="modal-content">
+      <button class="close-modal" onclick="closeModals()" aria-label="Tutup"><i class="fas fa-times" aria-hidden="true"></i></button>
+      <h2 style="margin-bottom:20px">Testimoni</h2>
+      <div id="testi-list"></div>
+    </div>
+  </div>
+
+  <!-- Server Status Modal -->
+  <div class="modal" id="m-status" role="dialog" aria-modal="true" aria-label="Server Status">
+    <div class="modal-content">
+      <button class="close-modal" onclick="closeModals()" aria-label="Tutup"><i class="fas fa-times" aria-hidden="true"></i></button>
+      <h2 style="margin-bottom:20px">Server Status</h2>
+      <div id="status-list"></div>
+      <p style="margin-top:16px; font-size:0.75rem; color:var(--text-dim); text-align:center" id="status-updated"></p>
+    </div>
+  </div>
+
+  <div id="toast" role="status" aria-live="polite">Berhasil Disalin!</div>
+
+  <script>
+    'use strict';
+
+    // ── Data (edit sesuai kebutuhan) ──────────────────────────────
+    const TESTI_DATA = [
+      { name: 'Andi S.',   text: 'Transaksi cepat, aman, dan terpercaya! Recommended banget 👍' },
+      { name: 'Risa P.',   text: 'Sudah 3x beli di sini, selalu lancar. Pelayanan ramah.' },
+      { name: 'Kevin W.',  text: 'QRIS-nya langsung masuk, nggak perlu nunggu lama. Gas!' },
+      { name: 'Dewi K.',   text: 'Harga bersaing, proses kilat. Auto balik lagi.' },
+    ];
+
+    const STORE_DATA = [
+      { name: 'Diamond ML 86',   price: 'Rp 18.000' },
+      { name: 'Diamond ML 172',  price: 'Rp 33.000' },
+      { name: 'UC PUBG 60',      price: 'Rp 14.500' },
+      { name: 'UC PUBG 325',     price: 'Rp 68.000' },
+      { name: 'Google Play Rp50k', price: 'Rp 52.000' },
+    ];
+
+    const STATUS_DATA = [
+      { name: 'Server DANA',      status: 'online' },
+      { name: 'Server GoPay',     status: 'online' },
+      { name: 'Server ShopeePay', status: 'offline' },
+      { name: 'Server QRIS',      status: 'online' },
+    ];
+
+    // ── Navigation ────────────────────────────────────────────────
+    function toggleNav() {
+      const nav = document.getElementById('navSidebar');
+      const btn = document.getElementById('menuToggle');
+      const isActive = nav.classList.toggle('active');
+      btn.classList.toggle('active', isActive);
+      btn.setAttribute('aria-expanded', isActive);
+    }
+
+    function closeNav() {
+      document.getElementById('navSidebar').classList.remove('active');
+      document.getElementById('menuToggle').classList.remove('active');
+      document.getElementById('menuToggle').setAttribute('aria-expanded', 'false');
+    }
+
+    // ── Modal ─────────────────────────────────────────────────────
+    function openModal(id) {
+      closeNav();
+      document.getElementById(id).classList.add('active');
+      document.body.style.overflow = 'hidden';
+
+      if (id === 'm-testi')  loadTesti();
+      if (id === 'm-status') loadStatus();
+      if (id === 'm-store')  loadStore();
+    }
+
+    function closeModals() {
+      document.querySelectorAll('.modal').forEach(m => m.classList.remove('active'));
+      document.body.style.overflow = '';
+    }
+
+    // ── Copy Number (async / proper error handling) ───────────────
+    async function copyNum(val, name) {
+      try {
+        await navigator.clipboard.writeText(val);
+        showToast(`${name} Berhasil Disalin!`);
+      } catch (err) {
+        // Fallback untuk browser lama / HTTP
+        const el = document.createElement('textarea');
+        el.value = val; el.style.position = 'fixed'; el.style.opacity = '0';
+        document.body.appendChild(el); el.select();
+        document.execCommand('copy');
+        document.body.removeChild(el);
+        showToast(`${name} Berhasil Disalin!`);
+      }
+    }
+
+    // ── Toast ─────────────────────────────────────────────────────
+    let toastTimer;
+    function showToast(msg) {
+      clearTimeout(toastTimer);
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+    }
+
+    // ── Loader: Testimoni ─────────────────────────────────────────
+    function loadTesti() {
+      const el = document.getElementById('testi-list');
+      if (el.innerHTML.trim()) return; // sudah di-render
+      el.innerHTML = TESTI_DATA.map(t => `
+        <div class="testi-item">
+          <div class="testi-name"><i class="fas fa-user-circle" style="margin-right:6px"></i>${t.name}</div>
+          <div class="testi-text">"${t.text}"</div>
+        </div>`).join('');
+    }
+
+    // ── Loader: Store ─────────────────────────────────────────────
+    function loadStore() {
+      const el = document.getElementById('store-list');
+      if (el.innerHTML.trim()) return;
+      el.innerHTML = STORE_DATA.map(s => `
+        <div class="store-item">
+          <span class="s-name">${s.name}</span>
+          <span class="s-price">${s.price}</span>
+        </div>`).join('');
+    }
+
+    // ── Loader: Server Status ─────────────────────────────────────
+    function loadStatus() {
+      const el = document.getElementById('status-list');
+      const badge = { online: 'ONLINE', offline: 'OFFLINE', lag: 'LAG' };
+      el.innerHTML = STATUS_DATA.map(s => `
+        <div class="status-row">
+          <span style="font-weight:600">${s.name}</span>
+          <span class="status-badge status-${s.status}">${badge[s.status] ?? s.status.toUpperCase()}</span>
+        </div>`).join('');
+      document.getElementById('status-updated').textContent =
+        'Diperbarui: ' + new Date().toLocaleTimeString('id-ID');
+    }
+
+    // ── Status Badge Config ───────────────────────────────────────
+    // QRIS: otomatis berdasarkan jam (aktif 06:00 - 23:00 WIB)
+    // DANA, GoPay, ShopeePay: ubah manual di sini → 'online' | 'offline' | 'lag'
+    const PAYMENT_STATUS = {
+      dana:       'online',   // ← ubah manual
+      gopay:      'online',   // ← ubah manual
+      shopeepay:  'offline',   // ← ubah manual
+    };
+
+    const BADGE_LABEL = {
+      online:  'Online',
+      offline: 'Offline',
+      lag:     'Gangguan',
+    };
+
+    function setPayBadge(id, status) {
+      const el = document.getElementById('badge-' + id);
+      if (!el) return;
+      el.textContent = BADGE_LABEL[status] ?? status;
+      el.className = 'pay-badge badge-' + status;
+    }
+
+    function getQrisStatus() {
+      // Jam WIB = UTC+7
+      const now   = new Date();
+      const wib   = new Date(now.getTime() + 7 * 60 * 60 * 1000);
+      const hour  = wib.getUTCHours();
+      // Online: 08:00–23:00 WIB
+      return (hour >= 8 && hour < 23) ? 'online' : 'offline';
+    }
+
+    function initPaymentBadges() {
+      // QRIS otomatis
+      setPayBadge('qris', getQrisStatus());
+      // Manual
+      Object.entries(PAYMENT_STATUS).forEach(([id, status]) => setPayBadge(id, status));
+    }
+
+    // Jalankan saat halaman load
+    initPaymentBadges();
+
+    // Refresh status QRIS setiap menit (supaya realtime kalau halaman dibuka lama)
+    setInterval(() => setPayBadge('qris', getQrisStatus()), 60 * 1000);
+
+
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') { closeModals(); closeNav(); }
+    });
+
+    // ── Klik luar modal ───────────────────────────────────────────
+    document.addEventListener('click', e => {
+      if (e.target.classList.contains('modal')) closeModals();
+    });
+
+    // ── Enter / Space untuk elemen role=button ────────────────────
+    document.querySelectorAll('[role="button"]').forEach(el => {
+      el.addEventListener('keydown', e => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); el.click(); }
+      });
+    });
+  </script>
+</body>
+</html>
